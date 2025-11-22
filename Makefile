@@ -1,17 +1,17 @@
 COMP = nasm
 COMP_FLAGS = -f elf64
 NAME = libasm.a
-S_FILES = ft_strlen.s
+S_FILES = ft_strlen.s ft_strcpy.s
 
 O_FILES = $(S_FILES:%.s=%.o)
 
 all: $(NAME)
 
 $(NAME): $(O_FILES)
-	ar r $(NAME) $(O_FILES)
+	ar rcs $(NAME) $(O_FILES)
 
-$(O_FILES): $(S_FILES)
-	$(COMP) $(COMP_FLAGS) $^ 
+%.o: %.s
+	$(COMP) $(COMP_FLAGS) $< -o $@
 
 clean:
 	rm -rf $(O_FILES)
