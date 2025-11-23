@@ -20,6 +20,8 @@ ft_strcmp:
   jmp .loop
 
 .finish:
-  sub   cl, ch
-  movsx rax, cl
+  movzx eax, cl
+  movzx ecx, ch
+  sub   eax, ecx
+  movsx rax, eax
   ret
