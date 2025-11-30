@@ -12,10 +12,55 @@ ft_atoi_base:
 .finished_check:
   cmp rdx, 1
   jle .failed_check
+  mov r12, rdx    ; NOW store the correct base length in r12
 
 .convert:
   xor rdx, rdx  ; set rdx to zero to iterate over the str
   xor r14, r14  ; set r14 to zero, it will be used to store the result
+  xor r15, r15  ; set r15 to zero, it will be used for sign (0 = positive, 1 = negative)
+
+.skip_whitespace:
+  mov al, byte [rdi + rdx]
+  cmp al, 32      ; space
+  je .inc_str
+  cmp al, 9       ; tab
+  je .inc_str
+  cmp al, 10      ; newline
+  je .inc_str
+  cmp al, 11      ; vertical tab
+  je .inc_str
+  cmp al, 12      ; form feed
+  je .inc_str
+  cmp al, 13      ; carriage return
+  je .inc_str
+  jmp .handle_signs
+
+.inc_str:
+  inc rdx
+  jmp .skip_whitespace
+
+.handle_signs:
+  mov al, byte [rdi + rdx]
+  cmp al, '+'
+  je .check_first_sign
+  cmp al, '-'
+  je .set_negative
+  jmp .convert_loop
+
+.check_first_sign:
+  cmp r15, 0      ; check if we already saw a sign
+  jne .done       ; if yes, stop conversion (return 0)
+  mov r15, 2      ; mark that we saw a '+' (neutral sign)
+  inc rdx
+  jmp .convert_loop
+
+.set_negative:
+  cmp r15, 0      ; check if we already saw a sign
+  jne .done       ; if yes, stop conversion (return 0)
+  mov r15, 1      ; mark negative
+  inc rdx
+  jmp .convert_loop
+
 .convert_loop:
   cmp byte [rdi + rdx], byte 0
   je  .done 
@@ -32,15 +77,18 @@ ft_atoi_base:
 
 .get_base_index_loop:
   cmp byte [rsi + rcx], byte 0
-  je  .failed_check
+  je  .done               ; character not found in base, stop conversion
 
   mov al, byte [rdi + rdx]
   cmp byte [rsi + rcx], al
-  je  .got_index
+  je  .found_char
   
-  mov r13, rcx
   inc rcx
   jmp .get_base_index_loop
+
+.found_char:
+  mov r13, rcx    ; NOW store the correct index in r13
+  jmp .got_index
 
 .check_base:
   xor   rdx, rdx
@@ -89,7 +137,6 @@ ft_atoi_base:
 
 .inc_rdx:
   inc rdx
-  mov r12, rdx  ; stores the base length in r12
   jmp .check_base_loop_1
 
 .failed_check:
@@ -97,5 +144,9 @@ ft_atoi_base:
   ret
 
 .done:
-  mov rax, r14 
+  mov rax, r14
+  cmp r15, 1      ; check if negative (1 = negative, 0 or 2 = positive)
+  jne .return
+  neg rax         ; negate the result if r15 is 1
+.return:
   ret
