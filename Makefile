@@ -3,21 +3,32 @@ COMP_FLAGS = -f elf64
 NAME = libasm.a
 S_FILES = ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s
 
-O_FILES = $(S_FILES:%.s=%.o)
+B_FILES = ft_atoi_base.s
+
+SRCS = $(S_FILES)
+ifdef BONUS
+SRCS += $(B_FILES)
+endif
+OBJS = $(SRCS:%.s=%.o)
 
 all: $(NAME)
 
-$(NAME): $(O_FILES)
-	ar rcs $(NAME) $(O_FILES)
+$(NAME): $(OBJS)
+	ar rcs $(NAME) $^
 
 %.o: %.s
 	$(COMP) $(COMP_FLAGS) $< -o $@
 
+bonus:
+	@$(MAKE) BONUS=1 all
+
 clean:
-	rm -rf $(O_FILES)
+	rm -rf $(S_FILES:%.s=%.o) $(B_FILES:%.s=%.o)
 
 fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re bonus
 
