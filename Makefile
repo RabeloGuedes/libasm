@@ -3,7 +3,7 @@ COMP_FLAGS = -f elf64
 NAME = libasm.a
 S_FILES = ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s
 
-B_FILES = ft_atoi_base.s
+B_FILES = ft_atoi_base.s ft_list_push_front.s
 
 SRCS = $(S_FILES)
 ifdef BONUS
